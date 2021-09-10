@@ -30,7 +30,7 @@ fn main() {
     println!("cargo:rerun-if-changed={}", out_path.to_str().unwrap());
 }
 
-fn split_kv(s: & str) -> (& str, &str) {
+fn split_kv(s: &str) -> (&str, &str) {
     let mut it = s.split('=');
     let key = it.next().unwrap().trim();
     let val = it.next().unwrap().trim();

@@ -1,0 +1,8 @@
+/target
+**/*.rs.bk
+wasm-pack.log
+build/
+src/generated/
+.cargo-ok
+deploy.conf
+wrangler.toml

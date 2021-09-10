@@ -1,0 +1,30 @@
+[package]
+name = "native-subscribe-deliver"
+version = "0.1.0"
+authors = ["zephyr <i@zephyr.moe>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["console_error_panic_hook"]
+
+[dependencies]
+cfg-if = "1"
+worker = "0.0.4"
+worker-kv = "0.3"
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+form_urlencoded = "1"
+base64 = "0.13"
+md5 = "0.7"
+chrono = { version = "0.4", features = ["wasmbind"] }
+futures = "0.3"
+
+console_error_panic_hook = { version = "0.1", optional = true }
+wee_alloc = { version = "0.4", optional = true }
+
+[profile.release]
+opt-level = "s"

@@ -8,5 +8,7 @@ pub fn not_found() -> Response { Response::error("Not Found", 404).unwrap() }
 
 #[inline]
 pub fn new_response(message: &str) -> Response {
-    Response::ok(message).unwrap()
+    let mut resp = Response::ok(message).unwrap();
+    resp.headers_mut().set("Access-Control-Allow-Origin", "*").unwrap();
+    resp
 }

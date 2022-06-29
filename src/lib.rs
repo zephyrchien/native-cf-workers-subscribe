@@ -10,8 +10,8 @@ include!("generated/config.rs");
 
 fn log_request(req: &Request) {
     console_log!(
-        "{} - [{}], located at: {:?}, within: {}",
-        Date::now().to_string(),
+        "{} {}, located at: {:?}, within: {}",
+        req.method().to_string(),
         req.path(),
         req.cf().coordinates().unwrap_or_default(),
         req.cf().region().unwrap_or_else(|| "unknown region".into())
@@ -19,10 +19,14 @@ fn log_request(req: &Request) {
 }
 
 #[event(fetch)]
-pub async fn main(request: Request, env: Env) -> Result<Response> {
+pub async fn main(
+    request: Request,
+    env: Env,
+    _: worker::Context,
+) -> Result<Response> {
     log_request(&request);
     utils::set_panic_hook();
-    let ctx = Context {
+    let ctx = types::Context {
         kv_v2: env.kv(KV_V2_BINDING)?,
         kv_ss: env.kv(KV_SS_BINDING)?,
         passwd: String::from(PASSWORD),

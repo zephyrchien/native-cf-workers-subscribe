@@ -5,9 +5,7 @@ use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
 fn main() {
-    let conf_path = env::var("CONF").unwrap();
-    let conf_path = Path::new(&conf_path);
-
+    let conf_path = Path::new("deploy.conf");
     let src_path = env::var("CARGO_MANIFEST_DIR").unwrap();
     let mut out_path = PathBuf::from_str(&src_path).unwrap();
     out_path.push("src");

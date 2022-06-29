@@ -20,26 +20,26 @@ pub async fn subscribe(ctx: &Context, form: Form<'_>) -> Result<Response> {
     let text = match proto {
         "v2" | "v2ray" => {
             try_join_all(list.keys.into_iter().map(|key| async move {
-                let data = kv.get(&key.name).await?.map_or(
-                    Err(Error::RustError(format!(
-                        "no such key: {}",
-                        &key.name
-                    ))),
-                    Ok,
-                )?;
-                let data: V2rayConfig = data.as_json()?;
+                let data: V2rayConfig =
+                    kv.get(&key.name).json().await?.map_or(
+                        Err(Error::RustError(format!(
+                            "no such key: {}",
+                            &key.name
+                        ))),
+                        Ok,
+                    )?;
                 utils::v2ray_link(&data)
             }))
             .await?
         }
         "ss" | "shadowsocks" => {
             try_join_all(list.keys.into_iter().map(|key| async move {
-                let data = kv.get(&key.name).await?.map_or(
+                let data = kv.get(&key.name).json().await?.map_or(
                     Err(Error::RustError(format!(
                         "no such key: {}",
                         &key.name
                     ))),
-                    |x| x.as_json().map_err(Error::from),
+                    Ok,
                 )?;
                 utils::shadowsocks_link(&data)
             }))
@@ -76,7 +76,7 @@ pub async fn register(
         _ => return Ok(http::not_found()),
     };
     kv.put(&key, payload)?.execute().await?;
-    return Ok(http::new_response(&format!("registered: {}\n", &key)));
+    Ok(http::new_response(&format!("registered: {}\n", &key)))
 }
 
 pub async fn fetch(ctx: &Context, form: Form<'_>) -> Result<Response> {
@@ -88,17 +88,15 @@ pub async fn fetch(ctx: &Context, form: Form<'_>) -> Result<Response> {
     let key = form.tag.unwrap();
     let link = match form.proto.unwrap() {
         "v2" | "v2ray" => {
-            let data = ctx.kv_v2.get(key).await?.map_or(
-                Err(Error::RustError(format!("no such key: {}", key))),
-                |x| x.as_json().map_err(Error::from),
-            )?;
+            let data = ctx.kv_v2.get(key).json().await?.ok_or_else(|| {
+                Error::RustError(format!("no such key: {}", key))
+            })?;
             utils::v2ray_link(&data)?
         }
         "ss" | "shadowsocks" => {
-            let data = ctx.kv_ss.get(key).await?.map_or(
-                Err(Error::RustError(format!("no such key: {}", key))),
-                |x| x.as_json().map_err(Error::from),
-            )?;
+            let data = ctx.kv_ss.get(key).json().await?.ok_or_else(|| {
+                Error::RustError(format!("no such key: {}", key))
+            })?;
             utils::shadowsocks_link(&data)?
         }
         _ => return Ok(http::not_found()),
@@ -120,7 +118,7 @@ pub async fn revoke(ctx: &Context, form: Form<'_>) -> Result<Response> {
     };
 
     kv.delete(key).await?;
-    return Ok(http::new_response(&format!("revoked: {}\n", &key)));
+    Ok(http::new_response(&format!("revoked: {}\n", &key)))
 }
 
 pub async fn list(ctx: &Context, form: Form<'_>) -> Result<Response> {

@@ -53,10 +53,10 @@ pub fn shadowsocks_link(data: &ShadowsocksConfig) -> Result<String> {
 macro_rules! check {
     ($form: ident, $passwd: expr, $allow_token: expr) => {
         if !$form.auth($passwd, $allow_token) {
-            return Ok(crate::http::forbidden());
+            return Ok(http::forbidden());
         }
         if $form.proto.is_none() {
-            return Ok(crate::http::not_found());
+            return Ok(http::not_found());
         }
     };
 }

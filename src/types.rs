@@ -53,7 +53,7 @@ impl<'a> Form<'a> {
         use crate::utils::take_cow;
         let mut form = Form::default();
 
-        for (key, val) in query.into_iter() {
+        for (key, val) in query {
             match key.as_ref() {
                 "tag" => form.tag = Some(take_cow(val)),
                 "proto" => form.proto = Some(take_cow(val)),
